@@ -1,4 +1,4 @@
-package edu.pitt.cs;
+package capstoneSchedulingApp;
 
 import static org.junit.Assert.assertTrue;
 
