@@ -1,0 +1,18 @@
+{
+  "productionMode": false,
+  "useDeprecatedV14Bootstrapping": false,
+  "eagerServerLoad": false,
+  "npmFolder": "/Users/nicobartello/Documents/GitHub/cs_1980_capstone_scheduling/capstone-scheduling",
+  "node.version": "v16.16.0",
+  "node.download.root": "https://nodejs.org/dist/",
+  "generatedFolder": "/Users/nicobartello/Documents/GitHub/cs_1980_capstone_scheduling/capstone-scheduling/target/frontend",
+  "frontendFolder": "/Users/nicobartello/Documents/GitHub/cs_1980_capstone_scheduling/capstone-scheduling/frontend",
+  "connect.javaSourceFolder": "/Users/nicobartello/Documents/GitHub/cs_1980_capstone_scheduling/capstone-scheduling/src/main/java",
+  "javaResourceFolder": "/Users/nicobartello/Documents/GitHub/cs_1980_capstone_scheduling/capstone-scheduling/src/main/resources",
+  "connect.applicationProperties": "/Users/nicobartello/Documents/GitHub/cs_1980_capstone_scheduling/capstone-scheduling/src/main/resources/application.properties",
+  "connect.openApiFile": "/Users/nicobartello/Documents/GitHub/cs_1980_capstone_scheduling/capstone-scheduling/target/generated-resources/openapi.json",
+  "project.frontend.generated": "/Users/nicobartello/Documents/GitHub/cs_1980_capstone_scheduling/capstone-scheduling/frontend/generated",
+  "pnpm.enable": false,
+  "require.home.node": false,
+  "build.folder": "target"
+}
