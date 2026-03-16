@@ -35,6 +35,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 public class MainView extends AppLayout{
 
     private VerticalLayout contentArea = new VerticalLayout();
+    private String dbPath = System.getenv().getOrDefault("SQLITE_DB_PATH", "/app/data/schedule.db");
 
     public MainView(){
 
@@ -83,7 +84,8 @@ public class MainView extends AppLayout{
         upload.addSucceededListener(event -> {
                 //ADD PARSER CALL
             contentArea.add(new Paragraph("Current Uploaded File: " + buffer.getFileName()));
-            contentArea.add(new Paragraph(Parser.parseFile(buffer.getFileData().getFile().getAbsolutePath(), ",").toString()));
+            Parser.parseFile(dbPath, buffer.getFileData().getFile().getAbsolutePath(), ",");
+            contentArea.add(new Pre(Parser.getClassesPreview(dbPath)));
             Notification notification = Notification.show("Upload Successful", 3000, Notification.Position.TOP_END);
             notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             dialog.close();
