@@ -1,30 +1,63 @@
 package capstoneSchedulingApp;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
+
+import javafx.scene.Scene;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
+import javafx.application.Application;
+import javafx.stage.Stage;
+import java.nio.file.*;
+import java.io.File;
+import org.apache.commons.io.FileUtils;
 
 @SpringBootApplication
-public class scheduleApp {
+public class scheduleApp extends Application{
+
+    private ConfigurableApplicationContext context;
+    private String dbPath = System.getenv().getOrDefault("SQLITE_DB_PATH", "tmpData/");
+
     public static void main(String [] args){
-        SpringApplication.run(scheduleApp.class, args);
+        launch(args);
     }
 
-    @Bean
-    CommandLineRunner initDatabase(){
-        return args -> {
-            String dbPath = System.getenv().getOrDefault("SQLITE_DB_PATH", "/app/data/schedule.db");
-            String starterCsv = System.getenv().getOrDefault("STARTER_CSV_PATH", "/app/data/Mock_Schedule_Correct_Classrooms.csv");
-            java.io.File csvFile = new java.io.File(starterCsv);
-            if(csvFile.exists()){
-                Parser.parseFile(dbPath, starterCsv, ",");
-                System.out.println("Starter DB initialized from: " + starterCsv);
-            }
-            else
-                System.out.println("No starter CSV found at: " + starterCsv);
-        };
+    @Override
+    public void init(){
+        context = new SpringApplicationBuilder(scheduleApp.class).run();
+        try {
+            Files.createDirectory(Paths.get("tmpData/"));
+        } catch (Exception e) {
+            System.out.println("Data Directory Already Exists");
+        }
     }
+
+    @Override
+    public void start(Stage stage){
+        WebView webView = new WebView();
+        webView.getEngine().load("http://127.0.0.1:8080/");
+        Scene scene = new Scene(webView, 1200, 800);
+        stage.setTitle("Schedule Validation Tool");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    @Override
+    public void stop(){
+        if(context!=null)
+            context.close();
+
+        try {
+            FileUtils.deleteDirectory(new File("tmpData/"));
+        } catch (Exception e) {
+            System.out.println("Error cleaning data directory");
+        }
+
+        
+    }
+
+    
 
 
 }

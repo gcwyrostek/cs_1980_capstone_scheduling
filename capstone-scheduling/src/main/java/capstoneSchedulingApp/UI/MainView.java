@@ -35,7 +35,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 public class MainView extends AppLayout{
 
     private VerticalLayout contentArea = new VerticalLayout();
-    private String dbPath = System.getenv().getOrDefault("SQLITE_DB_PATH", "/app/data/schedule.db");
+    private String dbPath = System.getenv().getOrDefault("SQLITE_DB_PATH", "tmpData/schedule.db");
 
     public MainView(){
 
@@ -56,6 +56,7 @@ public class MainView extends AppLayout{
 
         //Help Button
         Button helpButton = new Button("Help", event->HelpDialog());
+
 
         //Header Creation
         HorizontalLayout header = new HorizontalLayout();
@@ -127,4 +128,5 @@ public class MainView extends AppLayout{
         dialog.setHeight("50%");
         dialog.open();
     }
+
 }
