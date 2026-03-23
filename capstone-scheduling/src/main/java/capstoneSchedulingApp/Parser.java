@@ -19,6 +19,7 @@ public class Parser {
             var statement = dbConnection.createStatement()) {
                 System.out.println("Created DB");
 
+                //Deletes previous tables so we don't have to keep deleting them
                 statement.execute("DROP TABLE IF EXISTS classes");
                 statement.execute("DROP TABLE IF EXISTS courses");
                 statement.execute("DROP TABLE IF EXISTS instructors");
