@@ -1,6 +1,6 @@
 package capstoneSchedulingApp.UI;
 
-import capstoneSchedulingApp.Parser;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.html.H1;
@@ -18,11 +18,13 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.tabs.*;
 
 import java.io.File;
 import java.io.InputStream;
 
 import com.nimbusds.jose.util.StandardCharset;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 
 
@@ -57,6 +59,8 @@ public class MainView extends AppLayout{
         //Help Button
         Button helpButton = new Button("Help", event->HelpDialog());
 
+        // Button viewData = new Button("View Dataset", event->viewData());
+        Button viewData = new Button("View Data", event->viewData());
 
         //Header Creation
         HorizontalLayout header = new HorizontalLayout();
@@ -65,7 +69,7 @@ public class MainView extends AppLayout{
         header.setAlignItems(FlexComponent.Alignment.CENTER);
         Div leftSpacer = new Div();
         Div rightSpacer = new Div();
-        header.add(title, leftSpacer, uploadButton, helpButton, rightSpacer);
+        header.add(title, leftSpacer, uploadButton, rightSpacer, helpButton);
         header.expand(rightSpacer, leftSpacer);
         return header;
     }
@@ -85,8 +89,8 @@ public class MainView extends AppLayout{
         upload.addSucceededListener(event -> {
                 //ADD PARSER CALL
             contentArea.add(new Paragraph("Current Uploaded File: " + buffer.getFileName()));
-            Parser.parseFile(dbPath, buffer.getFileData().getFile().getAbsolutePath(), ",");
-            contentArea.add(new Pre(Parser.getClassesPreview(dbPath)));
+            //Parser.parseFile(dbPath, buffer.getFileData().getFile().getAbsolutePath(), ",");
+            //contentArea.add(new Pre(Parser.getClassesPreview(dbPath)));
             Notification notification = Notification.show("Upload Successful", 3000, Notification.Position.TOP_END);
             notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             dialog.close();
@@ -127,6 +131,12 @@ public class MainView extends AppLayout{
         dialog.setWidth("70%");
         dialog.setHeight("50%");
         dialog.open();
+    }
+
+    private void viewData(){
+        contentArea.removeAll();
+        Grid dataGrid = new Grid();
+
     }
 
 }

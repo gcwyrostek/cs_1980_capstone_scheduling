@@ -7,3 +7,4 @@ capstone-scheduling/target/
 **/target/
 capstone-scheduling/frontend/
 **/frontend/
+capstone-scheduling/.dockerignore
