@@ -1,0 +1,4 @@
+capstone-scheduling/node_modules/
+capstone-scheduling/frontend/node_modules
+capstone-scheduling/target/
+.vscode/
