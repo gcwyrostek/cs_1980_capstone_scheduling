@@ -5,5 +5,5 @@ capstone-scheduling/target/
 .DS_Store
 **/.DS_Store
 **/target/
-frontend/
+capstone-scheduling/frontend/
 **/frontend/
