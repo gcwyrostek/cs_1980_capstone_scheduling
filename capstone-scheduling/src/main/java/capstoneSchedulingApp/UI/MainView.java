@@ -69,7 +69,7 @@ public class MainView extends AppLayout{
         header.setAlignItems(FlexComponent.Alignment.CENTER);
         Div leftSpacer = new Div();
         Div rightSpacer = new Div();
-        header.add(title, leftSpacer, uploadButton, rightSpacer, helpButton);
+        header.add(title, leftSpacer, uploadButton, helpButton, rightSpacer);
         header.expand(rightSpacer, leftSpacer);
         return header;
     }
