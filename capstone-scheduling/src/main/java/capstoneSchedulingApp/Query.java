@@ -356,58 +356,66 @@ public class Query {
     }
 
     public static void queryRoomCollision(String databaseName) {
-    String url = "jdbc:sqlite:" + databaseName;
+        String url = "jdbc:sqlite:" + databaseName;
 
-    for (int i = 1; i <= tableLength(databaseName, "classes"); i++) {
-        String sql = "SELECT * "
-                            + "FROM classes "
-                            + "WHERE id == " + i;
+        for (int i = 1; i <= tableLength(databaseName, "classes"); i++) {
+            String sql = "SELECT * "
+                                + "FROM classes "
+                                + "WHERE id == " + i;
 
-        Course A = new Course();
-        ArrayList<Course> B = new ArrayList<Course>();
+            Course A = new Course();
+            ArrayList<Course> B = new ArrayList<Course>();
 
-        try (Connection dbConnection = DriverManager.getConnection(url);
-            var statement = dbConnection.prepareStatement(sql)) {
-            var rs = statement.executeQuery();
-            while (rs.next()) { A = new Course(rs); }
-        } catch (Exception e) {
-            System.out.println(e.toString());
-            return;
-        }
+            try (Connection dbConnection = DriverManager.getConnection(url);
+                var statement = dbConnection.prepareStatement(sql)) {
+                var rs = statement.executeQuery();
+                
+                while (rs.next()) { 
+                    A = new Course(rs); 
+                }
+            } 
+            catch (Exception e) {
+                System.out.println(e.toString());
+                return;
+            }
 
-        sql = "SELECT *"
-            + " FROM classes"
-            + " WHERE id != " + i
-            // Same room
-            + " AND room == '" + A.room + "'"
-            // Overlapping times
-            + " AND (" + A.start_int + " <= end_int"
-            + " AND start_int <= " + A.end_int + ")"
-            // Same day
-            + " AND (day_mon AND " + A.day_mon
-            + " OR day_tues AND " + A.day_tues
-            + " OR day_wed AND " + A.day_wed
-            + " OR day_thurs AND " + A.day_thurs
-            + " OR day_fri AND " + A.day_fri + ")"
-            // Not a cross listed course (clas_num not off by 1 with same asso_num)
-            + " AND NOT (asso_num == " + A.asso_num
-            + " AND (clas_num == " + (A.clas_num + 1)
-            + " OR clas_num == " + (A.clas_num - 1) + "))";
+            sql = "SELECT *"
+                + " FROM classes"
+                + " WHERE id != " + i
+                // Same room
+                + " AND room == '" + A.room + "'"
+                // Overlapping times
+                + " AND (" + A.start_int + " <= end_int"
+                + " AND start_int <= " + A.end_int + ")"
+                // Same day
+                + " AND (day_mon AND " + A.day_mon
+                + " OR day_tues AND " + A.day_tues
+                + " OR day_wed AND " + A.day_wed
+                + " OR day_thurs AND " + A.day_thurs
+                + " OR day_fri AND " + A.day_fri + ")"
+                // Not a cross listed course (clas_num not off by 1 with same asso_num)
+                + " AND NOT (asso_num == " + A.asso_num
+                + " AND (clas_num == " + (A.clas_num + 1)
+                + " OR clas_num == " + (A.clas_num - 1) + "))";
 
-        try (Connection dbConnection = DriverManager.getConnection(url);
-            var statement = dbConnection.prepareStatement(sql)) {
-            var rs = statement.executeQuery();
-            while (rs.next()) { B.add(new Course(rs)); }
-        } catch (Exception e) {
-            System.out.println(e.toString());
-            return;
-        }
+            try (Connection dbConnection = DriverManager.getConnection(url);
+                var statement = dbConnection.prepareStatement(sql)) {
+                var rs = statement.executeQuery();
 
-        for (Course match : B) {
-            System.out.println("Room collision: " + A.toString() + " AND " + match.toString());
+                while (rs.next()) { 
+                    B.add(new Course(rs)); 
+                }
+            } 
+            catch (Exception e) {
+                System.out.println(e.toString());
+                return;
+            }
+
+            for (Course match : B) {
+                System.out.println("Room collision: " + A.toString() + " AND " + match.toString());
+            }
         }
     }
-}
     
     //Instructor conseq courses
     public static void queryGenericInst(String databaseName) {
