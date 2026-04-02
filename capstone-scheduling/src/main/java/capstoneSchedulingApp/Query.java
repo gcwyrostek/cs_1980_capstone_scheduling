@@ -6,17 +6,195 @@ import java.util.ArrayList;
 
 public class Query {
 
-    //Overlapping Courses of same course_num
-    public static void queryGeneric(String databaseName) {
-        String url = "jdbc:sqlite:" + databaseName;
-        for (int i = 1; i <= tableLength(databaseName, "classes"); i++) {
-            String sql =  "SELECT *" 
+    public static void queryLecCollision(String databaseName) {
+        //Loops through each class in classes
+        String firstSql = "SELECT *" 
                         + " FROM classes" 
-                        + " WHERE id == " + i
+                        + " WHERE id == " + "~i"
                         + " AND type == 'LEC'";
 
+        final int RULES = 1;
+        String secondSql [] = new String[RULES];
+        String typeStringsArray[] = new String[RULES];
+        int impactArray[] = new int[RULES];
+
+        //RULE 1: LECTURE OVERLAP CHECK
+        typeStringsArray[0] = "OVERLAP CHECK";
+        impactArray[0] = 3;
+        secondSql [0] = "SELECT *" 
+                        + " FROM classes"
+                        + " WHERE id != " + "~i"
+                        //Checks that both instances are Lectures of the same Course Number
+                        + " AND type == 'LEC'"
+                        + " AND course_num == " + "~course_num"
+                        //Condition of the class times overlapping at all
+                        + " AND (" + "~start_int"  + " <= end_int"
+                        + " AND start_int <= " + "~end_int" + ")"
+                        //Condtion to make sure class shares at least one day of the week
+                        + " AND (day_mon AND " + "~day_mon"
+                        + " OR day_tues AND " + "~day_tues"
+                        + " OR day_wed AND " + "~day_wed"
+                        + " OR day_thurs AND " + "~day_thurs"
+                        + " OR day_fri AND " + "~day_fri" + ")";
+
+        ArrayList<Collision> queryOutput = queryEachInCourse(databaseName, firstSql, secondSql, typeStringsArray, impactArray);
+        System.out.println("Output: ");
+        for (Collision e : queryOutput) {
+            System.out.println(e.toString());
+        } 
+    }
+
+        public static void queryRecCollision(String databaseName, int minutesBetweenAmount) {
+        //Loops through each class in classes
+        String firstSql = "SELECT *" 
+                        + " FROM classes" 
+                        + " WHERE id == " + "~i"
+                        + " AND (type == 'REC'"
+                        + " OR type == 'LAB')";
+        
+        final int RULES = 2;
+        String secondSql [] = new String[RULES];
+        String typeStringsArray[] = new String[RULES];
+        int impactArray[] = new int[RULES];
+
+        //RULE 2: RECITATION OVERLAP CHECK
+        typeStringsArray[0] = "OVERLAP CHECK";
+        impactArray[0] = 3;
+        secondSql [0] = "SELECT *" 
+                        + " FROM classes"
+                        + " WHERE id != " + "~i"
+                        //Checks that both instances are Lectures of the same Course Number
+                        + " AND (type == 'REC' OR type == 'LAB')"
+                        + " AND course_num == " + "~course_num"
+                        + " AND asso_num == " + "~asso_num"
+                        //Condition of the class times overlapping at all
+                        + " AND (" + "~start_int"  + " <= end_int"
+                        + " AND start_int <= " + "~end_int" + ")"
+                        //Condtion to make sure class shares at least one day of the week
+                        + " AND (day_mon AND " + "~day_mon"
+                        + " OR day_tues AND " + "~day_tues"
+                        + " OR day_wed AND " + "~day_wed"
+                        + " OR day_thurs AND " + "~day_thurs"
+                        + " OR day_fri AND "+ "~day_fri" + ")";
+
+        //RULE 3: RECITATION TIME BETWEEN CHECK
+        typeStringsArray[1] = "TIME BETWEEN CHECK";
+        impactArray[1] = 1;
+        secondSql [1] = "SELECT *" 
+                        + " FROM classes"
+                        + " WHERE id != " + "~i"
+                        //Checks that both instances are Lectures of the same Course Number
+                        + " AND (type == 'REC' OR type == 'LAB')"
+                        + " AND course_num == " + "~course_num"
+                        + " AND asso_num == " + "~asso_num"
+                        //Condition of the class times overlapping at all
+                        + " AND (" + "~start_int" + " - end_int <= " + minutesBetweenAmount
+                        + " AND " + "~start_int" + " - end_int > 0)"
+                        //Condtion to make sure class shares at least one day of the week
+                        + " AND (day_mon AND " + "~day_mon"
+                        + " OR day_tues AND " + "~day_tues"
+                        + " OR day_wed AND " + "~day_wed"
+                        + " OR day_thurs AND " + "~day_thurs"
+                        + " OR day_fri AND "+ "~day_fri" + ")";
+
+        ArrayList<Collision> queryOutput = queryEachInCourse(databaseName, firstSql, secondSql, typeStringsArray, impactArray);
+        System.out.println("Output: ");
+        for (Collision e : queryOutput) {
+            System.out.println(e.toString());
+        } 
+    }
+
+    public static void queryTeacherProximity(String databaseName, int minutesBetweenAmount) {
+        String url = "jdbc:sqlite:" + databaseName;
+        ArrayList<Collision> output = new ArrayList<Collision>();
+        for (int h = 1; h <= tableLength(databaseName, "instructors"); h++) {
+            String sql =  "SELECT *" 
+                        + " FROM instructors" 
+                        + " WHERE id == " + h
+                        + " AND instructor != ''";
+
+            String inst = "";
+
+            try (Connection dbConnection = DriverManager.getConnection(url);
+                var statement = dbConnection.prepareStatement(sql)) {
+
+                var rs = statement.executeQuery();
+
+                while (rs.next()) {
+                    inst = rs.getString("instructor");
+                }
+
+            } catch (Exception e) {
+                    
+            }
+
+            //If initial query failed skip to next loop
+            if (inst == "") {
+                continue;
+            }
+
+            String firstSql = "SELECT *" 
+                            + " FROM classes" 
+                            + " WHERE id == " + "~i"
+                            + " AND instructor == '" + inst +"'";;
+
+            final int RULES = 1;
+            String secondSql [] = new String[RULES];
+            String typeStringsArray[] = new String[RULES];
+            int impactArray[] = new int[RULES];
+
+            //RULE 4: TEACHER PROXIMITY CHECK
+            typeStringsArray[0] = "TIME BETWEEN CHECK";
+            impactArray[0] = 1;
+            secondSql [0] = "SELECT *" 
+                            + " FROM classes"
+                            + " WHERE id != " + "~i"
+                            //Checks that both instances are Lectures of the same Course Number
+                            + " AND instructor == '" + inst + "'"
+                            //Condition within
+                            + " AND (" + "~start_int" + " - end_int < " + minutesBetweenAmount
+                            + " AND " + "~start_int" + " - end_int > 0)"
+                            //Condtion to make sure class shares at least one day of the week
+                            + " AND (day_mon AND " + "~day_mon"
+                            + " OR day_tues AND " + "~day_tues"
+                            + " OR day_wed AND " + "~day_wed"
+                            + " OR day_thurs AND " + "~day_thurs"
+                            + " OR day_fri AND "+ "~day_fri" + ")";
+
+            ArrayList<Collision> queryOutput = queryEachInCourse(databaseName, firstSql, secondSql, typeStringsArray, impactArray);
+            output.addAll(queryOutput);
+        }
+
+        for (Collision e : output) {
+            System.out.println(e.toString());
+        } 
+    }
+
+    public static ArrayList<Collision> queryEachInCourse(String databaseName, String firstSql, String[] secondSql, String[] typeStringsArray, int[] impactArray) {
+        String url = "jdbc:sqlite:" + databaseName;
+        ArrayList<Collision> allHits = new ArrayList<Collision>();
+
+        //This section parses out the table name from the SQL query
+        String[] getTable = firstSql.split(" ");
+        String tableString = "";
+        Boolean flag = false;
+
+        for (String table : getTable) {
+            if (flag) {
+                tableString = table;
+                break;
+            }
+            if (table.equals("FROM")) {
+                flag = true;
+            }
+        }
+
+        for (int i = 1; i <= tableLength(databaseName, tableString); i++) {
+
+            //Substitutes i into firstSql
+            String sql = firstSql.replaceAll("\\~i", "" + i);
+
             Course A = new Course();
-            ArrayList<Course> B = new ArrayList<Course>();
 
             try (Connection dbConnection = DriverManager.getConnection(url);
                 var statement = dbConnection.prepareStatement(sql)) {
@@ -28,8 +206,7 @@ public class Query {
                 }
 
             } catch (Exception e) {
-                    System.out.println(e.toString());
-                    return;
+                
             }
 
             //If initial query failed skip to next loop
@@ -37,24 +214,24 @@ public class Query {
                 continue;
             }
 
-            sql =         "SELECT *" 
-                        + " FROM classes"
-                        + " WHERE id != " + i
-                        //Checks that both instances are Lectures of the same Course Number
-                        + " AND type == 'LEC'"
-                        + " AND course_num == " + A.course_num
-                        //Condition of the class times overlapping at all
-                        + " AND (" + A.start_int  + " <= end_int"
-                        + " AND start_int <= " + A.end_int + ")"
-                        //Condtion to make sure class shares at least one day of the week
-                        + " AND (day_mon AND " + A.day_mon
-                        + " OR day_tues AND " + A.day_tues
-                        + " OR day_wed AND " + A.day_wed
-                        + " OR day_thurs AND " + A.day_thurs
-                        + " OR day_fri AND "+ A.day_fri + ")";
+            for (int j = 0; j < secondSql.length; j++) {
+                String sql2 = secondSql[j].replaceAll("\\~i", "" + i);
+                Collision temp = querySub(databaseName, A, sql2, typeStringsArray[j], impactArray[j]);
+                if (temp != null) {
+                    allHits.add(temp);
+                }
+            }
+        }
 
-            try (Connection dbConnection = DriverManager.getConnection(url);
-            var statement = dbConnection.prepareStatement(sql)) {
+        return allHits;
+    }
+
+    public static Collision querySub(String databaseName, Course A, String secondSql, String typeStrings, int impact){
+        String url = "jdbc:sqlite:" + databaseName;
+        ArrayList<Course> B = new ArrayList<Course>();
+        String finalSql = A.queryGen(secondSql);
+        try (Connection dbConnection = DriverManager.getConnection(url);
+            var statement = dbConnection.prepareStatement(finalSql)) {
 
                 var rs = statement.executeQuery();
 
@@ -64,89 +241,16 @@ public class Query {
 
             } catch (Exception e) {
                     System.out.println(e.toString());
-                    return;
+                    return null;
             }
 
             //The default constructor for Course sets clas_num to -1, so this means the query for A failed
             if (B.size() > 0)  {
-                System.out.println("Collisions for " + A.toString());
-                for (Course check : B) {
-                    System.out.println(check.toString());
-                }
+                Collision col = new Collision(A, B);
+                col.setCollisionParameters(typeStrings, impact);
+                return col;
             }
-        }
-    }
-
-    //Overlapping Recitation of same course_num and asso_num
-    public static void queryGenericRec(String databaseName) {
-        String url = "jdbc:sqlite:" + databaseName;
-        for (int i = 1; i <= tableLength(databaseName, "classes"); i++) {
-            String sql =  "SELECT *" 
-                        + " FROM classes" 
-                        + " WHERE id == " + i
-                        + " AND (type == 'REC'"
-                        + " OR type == 'LAB')";
-
-            Course A = new Course();
-            ArrayList<Course> B = new ArrayList<Course>();
-
-            try (Connection dbConnection = DriverManager.getConnection(url);
-                var statement = dbConnection.prepareStatement(sql)) {
-
-                var rs = statement.executeQuery();
-
-                while (rs.next()) {
-                    A = new Course(rs);
-                }
-
-            } catch (Exception e) {
-                    System.out.println(e.toString());
-                    return;
-            }
-
-            //If initial query failed skip to next loop
-            if (A.clas_num == -1) {
-                continue;
-            }
-
-            sql =         "SELECT *" 
-                        + " FROM classes"
-                        + " WHERE id != " + i
-                        //Checks that both instances are Lectures of the same Course Number
-                        + " AND (type == 'REC' OR type == 'LAB')"
-                        + " AND course_num == " + A.course_num
-                        + " AND asso_num == " + A.asso_num
-                        //Condition of the class times overlapping at all
-                        + " AND (" + A.start_int  + " <= end_int"
-                        + " AND start_int <= " + A.end_int + ")"
-                        //Condtion to make sure class shares at least one day of the week
-                        + " AND (day_mon AND " + A.day_mon
-                        + " OR day_tues AND " + A.day_tues
-                        + " OR day_wed AND " + A.day_wed
-                        + " OR day_thurs AND " + A.day_thurs
-                        + " OR day_fri AND "+ A.day_fri + ")";
-
-            try (Connection dbConnection = DriverManager.getConnection(url);
-            var statement = dbConnection.prepareStatement(sql)) {
-
-                var rs = statement.executeQuery();
-
-                while (rs.next()) {
-                    B.add(new Course(rs));           
-                }
-
-            } catch (Exception e) {
-                    System.out.println(e.toString());
-                    return;
-            }
-
-            if (B.size() > 0) {
-                System.out.println("Collisions for " + A.toString());
-                for (Course check : B) {
-                    System.out.println(check.toString());
-                }
-            }
-        }
+            return null;
     }
 
     //Instructor conseq courses
@@ -213,7 +317,7 @@ public class Query {
                             + " WHERE id != " + i
                             //Checks that both instances are Lectures of the same Course Number
                             + " AND instructor == '" + A.instructor + "'"
-                            //Condition of the class times overlapping at all
+                            //Condition within
                             + " AND (" + A.start_int + " - end_int < 30"
                             + " AND " + A.start_int + " - end_int > 0)"
                             //Condtion to make sure class shares at least one day of the week
