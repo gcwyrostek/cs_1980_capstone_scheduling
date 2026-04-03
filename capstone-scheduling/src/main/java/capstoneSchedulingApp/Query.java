@@ -21,7 +21,7 @@ public class Query {
         //RULE 1: LECTURE OVERLAP CHECK
         typeStringsArray[0] = "OVERLAP CHECK";
         impactArray[0] = 3;
-        secondSql [0] = "SELECT *" 
+        secondSql[0] = "SELECT *" 
                         + " FROM classes"
                         + " WHERE id != " + "~i"
                         //Checks that both instances are Lectures of the same Course Number
@@ -44,7 +44,7 @@ public class Query {
         } 
     }
 
-        public static void queryRecCollision(String databaseName, int minutesBetweenAmount) {
+    public static void queryRecCollision(String databaseName, int minutesBetweenAmount) {
         //Loops through each class in classes
         String firstSql = "SELECT *" 
                         + " FROM classes" 
@@ -60,7 +60,7 @@ public class Query {
         //RULE 2: RECITATION OVERLAP CHECK
         typeStringsArray[0] = "OVERLAP CHECK";
         impactArray[0] = 3;
-        secondSql [0] = "SELECT *" 
+        secondSql[0] = "SELECT *" 
                         + " FROM classes"
                         + " WHERE id != " + "~i"
                         //Checks that both instances are Lectures of the same Course Number
@@ -80,7 +80,7 @@ public class Query {
         //RULE 3: RECITATION TIME BETWEEN CHECK
         typeStringsArray[1] = "TIME BETWEEN CHECK";
         impactArray[1] = 1;
-        secondSql [1] = "SELECT *" 
+        secondSql[1] = "SELECT *" 
                         + " FROM classes"
                         + " WHERE id != " + "~i"
                         //Checks that both instances are Lectures of the same Course Number
