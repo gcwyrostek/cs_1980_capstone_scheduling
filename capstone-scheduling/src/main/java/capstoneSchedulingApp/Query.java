@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class Query {
 
-    public static void queryLecCollision(String databaseName) {
+    public static ArrayList<Collision> queryLecCollision(String databaseName) {
         //Loops through each class in classes
         String firstSql = "SELECT *" 
                         + " FROM classes" 
@@ -42,9 +42,10 @@ public class Query {
         for (Collision e : queryOutput) {
             System.out.println(e.toString());
         } 
+        return queryOutput;
     }
 
-        public static void queryRecCollision(String databaseName, int minutesBetweenAmount) {
+        public static ArrayList<Collision> queryRecCollision(String databaseName, int minutesBetweenAmount) {
         //Loops through each class in classes
         String firstSql = "SELECT *" 
                         + " FROM classes" 
@@ -102,9 +103,10 @@ public class Query {
         for (Collision e : queryOutput) {
             System.out.println(e.toString());
         } 
+        return queryOutput;
     }
 
-    public static void queryTeacherProximity(String databaseName, int minutesBetweenAmount) {
+    public static ArrayList<Collision> queryTeacherProximity(String databaseName, int minutesBetweenAmount) {
         String url = "jdbc:sqlite:" + databaseName;
         ArrayList<Collision> output = new ArrayList<Collision>();
         for (int h = 1; h <= tableLength(databaseName, "instructors"); h++) {
@@ -168,6 +170,7 @@ public class Query {
         for (Collision e : output) {
             System.out.println(e.toString());
         } 
+        return output;
     }
 
     public static ArrayList<Collision> queryEachInCourse(String databaseName, String firstSql, String[] secondSql, String[] typeStringsArray, int[] impactArray) {
