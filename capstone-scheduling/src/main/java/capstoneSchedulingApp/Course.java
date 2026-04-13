@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 public class Course {
 
     public int id;
+    public String sub_code;         //ex: CS, INFSCI
     public int clas_num;            //Unique identifier
     public int course_num;        //Class number, ex: CS 1501          //Unique identifier 
     public int asso_num;            //Helps identify which classes and recs work
@@ -25,6 +26,7 @@ public class Course {
     
     public Course(ResultSet input) throws Exception{
         this.id         = input.getInt("id");
+        this.sub_code   = input.getString("sub_code");
         this.clas_num   = input.getInt("clas_num");
         this.course_num = input.getInt("course_num");
         this.asso_num   = input.getInt("asso_num");
@@ -46,6 +48,7 @@ public class Course {
 
     public Course() {
         this.id         = -1;
+        this.sub_code   = "";
         this.clas_num   = -1;
         this.course_num = -1;
         this.asso_num   = -1;
@@ -70,6 +73,8 @@ public class Course {
         switch (input) {
             case "id":
                 return "" + id;
+            case "sub_code":
+                return sub_code;
             case "clas_num":
                 return "" + clas_num;
             case "course_num":
@@ -113,6 +118,7 @@ public class Course {
         String outString = inputQuery;
         
         outString = outString.replaceAll("\\~id",           switchOut("id"));
+        outString = outString.replaceAll("\\~sub_code",     switchOut("sub_code"));
         outString = outString.replaceAll("\\~clas_num",     switchOut("clas_num"));
         outString = outString.replaceAll("\\~course_num",   switchOut("course_num"));
         outString = outString.replaceAll("\\~asso_num",     switchOut("asso_num"));
@@ -135,6 +141,6 @@ public class Course {
     }
 
     public String toString() {
-        return clas_num + " " + days + " " + start + "-" + end + " " + instructor;
+        return clas_num + ": " + sub_code + course_num + " - " + asso_num + " " + days + " " + start + "-" + end + " " + instructor;
     }
 }

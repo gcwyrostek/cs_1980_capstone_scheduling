@@ -25,7 +25,8 @@ public class Collision {
     public String toString() {
         String outString = "";
         outString += "---------------------------------------------\n";
-        outString += base.toString() + " " + type + " with:\n";
+        outString += type + " :\n";
+        outString += base.toString();
         outString += "\n";
         for (Course e : hits) {
             outString += e.toString() + "\n";

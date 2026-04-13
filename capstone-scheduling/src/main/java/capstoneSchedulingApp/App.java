@@ -9,6 +9,9 @@ public class App {
         for (String i : out) {
             System.out.println(i);
         }
-        Query.queryTeacherProximity("schedule.db", 30);
+        ArrayList<Collision> finalt = Query.queryLecCollision("schedule.db");
+        for (Collision i : finalt) {
+            System.out.println(i.toString());
+        }
     }
 }
