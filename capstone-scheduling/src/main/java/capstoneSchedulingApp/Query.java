@@ -11,22 +11,45 @@ public class Query {
         String firstSql = "SELECT *" 
                         + " FROM classes" 
                         + " WHERE id == " + "~i"
-                        + " AND type == 'LEC'";
-
-        final int RULES = 1;
+                        + " AND (type == 'LEC'"
+                        + " OR type == 'PRA'"
+                        + " OR type == 'SEM')";
+        final int RULES = 2;
         String secondSql [] = new String[RULES];
         String typeStringsArray[] = new String[RULES];
         int impactArray[] = new int[RULES];
 
-        //RULE 1: LECTURE OVERLAP CHECK
-        typeStringsArray[0] = "OVERLAP CHECK";
+        //RULE 1: LECTURE OVERLAP WITH OTHER OF SAME COURSE NUM CHECK
+        typeStringsArray[0] = "Lecture overlaps with other lecture sections of the same course";
         impactArray[0] = 3;
         secondSql[0] = "SELECT *" 
                         + " FROM classes"
                         + " WHERE id != " + "~i"
                         //Checks that both instances are Lectures of the same Course Number
-                        + " AND type == 'LEC'"
+                        + " AND sub_code == " + "'~sub_code'"
+                        + " AND type == " + "'~type'"
                         + " AND course_num == " + "~course_num"
+                        //Condition of the class times overlapping at all
+                        + " AND (" + "~start_int"  + " <= end_int"
+                        + " AND start_int <= " + "~end_int" + ")"
+                        //Condtion to make sure class shares at least one day of the week
+                        + " AND (day_mon AND " + "~day_mon"
+                        + " OR day_tues AND " + "~day_tues"
+                        + " OR day_wed AND " + "~day_wed"
+                        + " OR day_thurs AND " + "~day_thurs"
+                        + " OR day_fri AND " + "~day_fri" + ")";
+
+        //RULE 7: LECTURE OVERLAP WITH RECITATION CHECK
+        typeStringsArray[1] = "Lecture overlaps with its own recitation";
+        impactArray[1] = 3;
+        secondSql[1] = "SELECT *" 
+                        + " FROM classes"
+                        + " WHERE id != " + "~i"
+                        //Checks that both instances are Lectures of the same Course Number
+                        + " AND sub_code == " + "'~sub_code'"
+                        + " AND type != " + "'~type'"
+                        + " AND course_num == " + "~course_num"
+                        + " AND asso_num == " + "~asso_num"
                         //Condition of the class times overlapping at all
                         + " AND (" + "~start_int"  + " <= end_int"
                         + " AND start_int <= " + "~end_int" + ")"
@@ -53,19 +76,20 @@ public class Query {
                         + " AND (type == 'REC'"
                         + " OR type == 'LAB')";
         
-        final int RULES = 2;
+        final int RULES = 4;
         String secondSql [] = new String[RULES];
         String typeStringsArray[] = new String[RULES];
         int impactArray[] = new int[RULES];
 
         //RULE 2: RECITATION OVERLAP CHECK
-        typeStringsArray[0] = "OVERLAP CHECK";
+        typeStringsArray[0] = "Recitation of same section overlap";
         impactArray[0] = 3;
         secondSql[0] = "SELECT *" 
                         + " FROM classes"
                         + " WHERE id != " + "~i"
                         //Checks that both instances are Lectures of the same Course Number
                         + " AND (type == 'REC' OR type == 'LAB')"
+                        + " AND sub_code == " + "'~sub_code'"
                         + " AND course_num == " + "~course_num"
                         + " AND asso_num == " + "~asso_num"
                         //Condition of the class times overlapping at all
@@ -79,15 +103,58 @@ public class Query {
                         + " OR day_fri AND "+ "~day_fri" + ")";
 
         //RULE 3: RECITATION TIME BETWEEN CHECK
-        typeStringsArray[1] = "TIME BETWEEN CHECK";
+        typeStringsArray[1] = "Time between recitations of the same section is within " + minutesBetweenAmount + " minutes";
         impactArray[1] = 1;
         secondSql[1] = "SELECT *" 
                         + " FROM classes"
                         + " WHERE id != " + "~i"
                         //Checks that both instances are Lectures of the same Course Number
                         + " AND (type == 'REC' OR type == 'LAB')"
+                        + " AND sub_code == " + "'~sub_code'"
                         + " AND course_num == " + "~course_num"
                         + " AND asso_num == " + "~asso_num"
+                        //Condition of the class times overlapping at all
+                        + " AND (" + "~start_int" + " - end_int <= " + minutesBetweenAmount
+                        + " AND " + "~start_int" + " - end_int > 0)"
+                        //Condtion to make sure class shares at least one day of the week
+                        + " AND (day_mon AND " + "~day_mon"
+                        + " OR day_tues AND " + "~day_tues"
+                        + " OR day_wed AND " + "~day_wed"
+                        + " OR day_thurs AND " + "~day_thurs"
+                        + " OR day_fri AND "+ "~day_fri" + ")";
+
+        //RULE 4: RECITATION FOR ALL COURSE NUM OVERLAP CHECK
+        typeStringsArray[2] = "Recitation of any section overlap";
+        impactArray[2] = 2;
+        secondSql[2] = "SELECT *" 
+                        + " FROM classes"
+                        + " WHERE id != " + "~i"
+                        //Checks that both instances are Lectures of the same Course Number
+                        + " AND (type == 'REC' OR type == 'LAB')"
+                        + " AND sub_code == " + "'~sub_code'"
+                        + " AND course_num == " + "~course_num"
+                        + " AND asso_num != " + "~asso_num"
+                        //Condition of the class times overlapping at all
+                        + " AND (" + "~start_int"  + " <= end_int"
+                        + " AND start_int <= " + "~end_int" + ")"
+                        //Condtion to make sure class shares at least one day of the week
+                        + " AND (day_mon AND " + "~day_mon"
+                        + " OR day_tues AND " + "~day_tues"
+                        + " OR day_wed AND " + "~day_wed"
+                        + " OR day_thurs AND " + "~day_thurs"
+                        + " OR day_fri AND "+ "~day_fri" + ")";
+
+        //RULE 5: RECITATION TIME BETWEEN CHECK FOR ALL COURSE NUM
+        typeStringsArray[3] = "Time between recitations of the any section is within " + minutesBetweenAmount + " minutes";
+        impactArray[3] = 1;
+        secondSql[3] = "SELECT *" 
+                        + " FROM classes"
+                        + " WHERE id != " + "~i"
+                        //Checks that both instances are Lectures of the same Course Number
+                        + " AND (type == 'REC' OR type == 'LAB')"
+                        + " AND sub_code == " + "'~sub_code'"
+                        + " AND course_num == " + "~course_num"
+                        + " AND asso_num != " + "~asso_num"
                         //Condition of the class times overlapping at all
                         + " AND (" + "~start_int" + " - end_int <= " + minutesBetweenAmount
                         + " AND " + "~start_int" + " - end_int > 0)"

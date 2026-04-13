@@ -26,6 +26,7 @@ public class Parser {
 
                 var sql = "CREATE TABLE classes ("
                     + "	id INTEGER PRIMARY KEY,"
+                    + " sub_code STRING,"
                     + "	clas_num INTEGER,"
                     + "	course_num INTEGER,"
                     + "	asso_num INTEGER,"
@@ -48,6 +49,7 @@ public class Parser {
                 statement.execute(sql);
 
                 sql = "INSERT OR IGNORE INTO classes("
+                    + "sub_code,"
                     + "clas_num,"
                     + "course_num,"
                     + "asso_num,"
@@ -65,7 +67,7 @@ public class Parser {
                     + "instructor,"
                     + "type,"
                     + "enroll)"
-                    + " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    + " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
                 var statement1 = dbConnection.prepareStatement(sql);
 
@@ -104,23 +106,24 @@ public class Parser {
                         continue;
                     }
 
-                    statement1.setInt(1, Integer.parseInt(lineArray[3]));                   // 3 is Class Number
-                    statement1.setInt(2, Integer.parseInt(lineArray[1]));                   // 1 is Course Number                   
-                    statement1.setInt(3, Integer.parseInt(lineArray[4]));                   // 4 is Associated Class Number
-                    statement1.setString(4, lineArray[5]);                                  // 5 is Days
-                    statement1.setBoolean(5, doesDayStringHaveDay(lineArray[5], 0));   // 5 is Days, 0 -> Mon
-                    statement1.setBoolean(6, doesDayStringHaveDay(lineArray[5], 1));   // 5 is Days, 1 -> Tues
-                    statement1.setBoolean(7, doesDayStringHaveDay(lineArray[5], 2));   // 5 is Days, 2 -> Wed
-                    statement1.setBoolean(8, doesDayStringHaveDay(lineArray[5], 3));   // 5 is Days, 3 -> Thurs
-                    statement1.setBoolean(9, doesDayStringHaveDay(lineArray[5], 4));   // 5 is Days, 4 -> Fri
-                    statement1.setString(10, lineArray[6]);                                  // 6 is Start Time
-                    statement1.setString(11, lineArray[7]);                                 // 7 is Stop Time
-                    statement1.setInt(12, timeToMinutes(lineArray[6]));                     // 6 is Start Time FOR INT
-                    statement1.setInt(13, timeToMinutes(lineArray[7]));                     // 7 is Stop Time FOR INT
-                    statement1.setString(14, lineArray[8]);                                 // 8 is Room
-                    statement1.setString(15, lineArray[9]);                                 // 9 is Instructor
-                    statement1.setString(16, lineArray[13]);                                // 13 is Type                        
-                    statement1.setInt(17, Integer.parseInt(lineArray[15]));                 // 15 is Enrollment
+                    statement1.setString(1, lineArray[0]);                                     // 0 is Subject Code
+                    statement1.setInt(2, Integer.parseInt(lineArray[3]));                   // 3 is Class Number
+                    statement1.setInt(3, Integer.parseInt(lineArray[1]));                   // 1 is Course Number                   
+                    statement1.setInt(4, Integer.parseInt(lineArray[4]));                   // 4 is Associated Class Number
+                    statement1.setString(5, lineArray[5]);                                  // 5 is Days
+                    statement1.setBoolean(6, doesDayStringHaveDay(lineArray[5], 0));   // 5 is Days, 0 -> Mon
+                    statement1.setBoolean(7, doesDayStringHaveDay(lineArray[5], 1));   // 5 is Days, 1 -> Tues
+                    statement1.setBoolean(8, doesDayStringHaveDay(lineArray[5], 2));   // 5 is Days, 2 -> Wed
+                    statement1.setBoolean(9, doesDayStringHaveDay(lineArray[5], 3));   // 5 is Days, 3 -> Thurs
+                    statement1.setBoolean(10, doesDayStringHaveDay(lineArray[5], 4));   // 5 is Days, 4 -> Fri
+                    statement1.setString(11, lineArray[6]);                                  // 6 is Start Time
+                    statement1.setString(12, lineArray[7]);                                 // 7 is Stop Time
+                    statement1.setInt(13, timeToMinutes(lineArray[6]));                     // 6 is Start Time FOR INT
+                    statement1.setInt(14, timeToMinutes(lineArray[7]));                     // 7 is Stop Time FOR INT
+                    statement1.setString(15, lineArray[8]);                                 // 8 is Room
+                    statement1.setString(16, lineArray[9]);                                 // 9 is Instructor
+                    statement1.setString(17, lineArray[13]);                                // 13 is Type                        
+                    statement1.setInt(18, Integer.parseInt(lineArray[15]));                 // 15 is Enrollment
                     statement1.executeUpdate();
                     // Super hard coded, might parse correct columns from label line
                     /*Course temp = new Course(Integer.parseInt(lineArray[1]), Integer.parseInt(lineArray[3]),
@@ -311,6 +314,10 @@ public class Parser {
 
         if (!isTime(input[7])) {
             output += "Missing/Invalid End Time\n";
+        }
+
+        if (input[9].equals("") && (input[13].equals("LEC") || input[13].equals("PRA") || input[13].equals("SEM"))) {
+            output += "Missing Instructor";
         }
 
         if (input[15].equals("") || !isInt(input[15])) {
